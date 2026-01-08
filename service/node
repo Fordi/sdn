@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
-export NVM_DIR="${HOME}/.nvm"
-if [ ! -d "${NVM_DIR}" ]; then
-  echo "NVM not installed for user ${USER}" >&2
+if [[ -d "${HOME}/.nvm" ]]; then
+  export NVM_DIR="${HOME}/.nvm"
+  source "${NVM_DIR}/nvm.sh"
+  if [[ -f .nvmrc ]]; then
+    nvm install
+  else
+    nvm use default
+  fi
+fi
+NODE="$(command -v node)"
+if [[ -z "$NODE" ]]; then
+  echo "No node found.  Please install one.  User-level nvm is fine." >&2
   exit -1
-fi
-source "${NVM_DIR}/nvm.sh"
-if [[ -f .nvmrc ]]; then
-  nvm install
-else
-  nvm use default
-fi
+fi 
 node $*
