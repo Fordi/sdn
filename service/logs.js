@@ -18,11 +18,12 @@ const formatDateTime = (date) => {
   const t = `${pad(h)}:${pad(date.getMinutes())}:${pad(date.getSeconds())}${a}`;
   return `${d} ${t}`;
 }
-
+const decoder = new TextDecoder();
 export const formatJournal = (line) => {
   const time = parseInt(line.__REALTIME_TIMESTAMP.slice(0, -3));
   const sym = line._TRANSPORT === 'stdout' ? ' > ' : '‼> ';
-  return `${formatDateTime(new Date(time))}${sym}${line.MESSAGE}`;
+  const message = Array.isArray(line.MESSAGE) ? decoder.decode(new Uint8Array(line.MESSAGE)) : line.MESSAGE;
+  return `${formatDateTime(new Date(time))}${sym}${message}`;
 }
 
 export function journalctl() {
