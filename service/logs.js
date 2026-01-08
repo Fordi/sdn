@@ -19,11 +19,8 @@ const formatDateTime = (date) => {
   return `${d} ${t}`;
 }
 const decoder = new TextDecoder();
+const ansiEscRx = /\x1b\[([\d;]+)m/g;
 export const formatJournal = (line) => {
-  const time = parseInt(line.__REALTIME_TIMESTAMP.slice(0, -3));
-  const sym = line._TRANSPORT === 'stdout' ? ' > ' : '‼> ';
-  const message = Array.isArray(line.MESSAGE) ? decoder.decode(new Uint8Array(line.MESSAGE)) : line.MESSAGE;
-  return `${formatDateTime(new Date(time))}${sym}${message}`;
 }
 
 export function journalctl() {
@@ -31,9 +28,35 @@ export function journalctl() {
   console.info(`> ${shellQuote(argv)}`);
   return jsonCmd(argv[0], argv.slice(1));
 }
-console.log(process.argv);
+
+const useColor = process.argv.slice(2).includes('--force-color') || process.stdout.isTTY;
+
+// Only generate colors if on a terminal
+const SET = (...states) => useColor ? `\x1b[${states.join(';')}m` : '';
+const RESET = SET(0);
 if (fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+  let state = '0';
   for await (const line of journalctl(process.argv.slice(2))) {
-    console.log(formatJournal(line));
+    const time = parseInt(line.__REALTIME_TIMESTAMP.slice(0, -3));
+    const sym = line._TRANSPORT === 'stdout' ? ' > ' : '‼> ';
+    // Unwrap the line if it's an array of numbers
+    let message = Array.isArray(line.MESSAGE) && (typeof line.MESSAGE[0] === 'number')
+      ? decoder.decode(new Uint8Array(line.MESSAGE))
+      : line.MESSAGE;
+
+    if (!useColor) {
+      // Strip colors if not on a terminal
+      message = message.replace(ansiEscRx, '');
+    }
+
+    // Reset and restore the current ANSI color state
+    const output = `${RESET}${formatDateTime(new Date(time))}${sym}${SET(state)}${message}${RESET}`;
+
+    // Capture the last esc[*m instance in the message, and store it to be restored before the next message.
+    // Unnessesary if not on a terminal.
+    if (useColor) {
+      state = [...(message.matchAll(ansiEscRx) ?? [])].at(-1)?.[1] ?? '0';
+    }
+    console.log(output);
   }
 }
