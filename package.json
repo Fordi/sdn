@@ -1,0 +1,28 @@
+{
+  "name": "@fordi-org/sdn",
+  "version": "0.0.1",
+  "description": "Make an npm project run as a systemd service",
+  "type": "module",
+  "main": "lib/index.js",
+  "dependencies": {
+    "nodemon": "^3.1.11"
+  },
+  "bin": "index.js",
+  "config": {
+    "systemd": {
+      "Unit": {
+        "After": [
+          "network.target"
+        ]
+      },
+      "Service": {
+        "Type": "simple"
+      },
+      "Install": {
+        "WantedBy": [
+          "multi-user.target"
+        ]
+      }
+    }
+  }
+}
