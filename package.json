@@ -5,7 +5,7 @@
   "type": "module",
   "main": "lib/index.js",
   "dependencies": {
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.14"
   },
   "bin": "index.js",
   "config": {
