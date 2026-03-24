@@ -25,7 +25,7 @@ export const formatJournal = (line) => {
 }
 
 export function journalctl() {
-  const argv = ['journalctl', '--user-unit', 'nyazzy' /*project.name*/, '-o', 'json', '-e', '-f'];
+  const argv = ['journalctl', '--user-unit', project.name, '-o', 'json', '-e', '-f'];
   console.info(`> ${shellQuote(argv)}`);
   return jsonCmd(argv[0], argv.slice(1));
 }
