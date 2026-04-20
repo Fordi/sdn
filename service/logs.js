@@ -25,7 +25,11 @@ export const formatJournal = (line) => {
 }
 
 export function journalctl() {
-  const argv = ['journalctl', '--user-unit', project.name, '-o', 'json', '-e', '-f'];
+  const argv = ['journalctl', '--user-unit', project.name];
+  for (const unit of project.otherUnits ?? []) {
+    argv.push(`--user-unit`, unit);
+  }
+  argv.push('-o', 'json', '-e', '-f');
   console.info(`> ${shellQuote(argv)}`);
   return jsonCmd(argv[0], argv.slice(1));
 }
@@ -103,7 +107,7 @@ function sliceAnsi(text, start, end) {
 
   return [...text.slice(aStart, aEnd), append].join('');
 }
-function drawMessage({ sym, stamp, message }) {
+function drawMessage({ sym, stamp, tag, priority, message }) {
   if (!useColor) {
     // Strip colors if not on a terminal
     message = message.replace(ansiEscRx, '');
@@ -113,8 +117,9 @@ function drawMessage({ sym, stamp, message }) {
   }
   const stampLen = (stamp.length + 4);
   const cols = process.stdout.columns;
+  const prefix = (tag || priority !== 'LOG') ? `[${tag ? `${tag} ` : ''}${priority}]: ` : '';
   // Reset and restore the current ANSI color state
-  const output = `${RESET}${stamp}${sym}${SET(state)}${sliceAnsi(message, leftOffset, leftOffset + cols - stampLen)}${RESET}`;
+  const output = `${RESET}${stamp}${sym}${SET(state)}${prefix}${sliceAnsi(message, leftOffset, leftOffset + cols - stampLen)}${RESET}`;
 
   // Capture the last esc[*m instance in the message, and store it to be restored before the next message.
   // Unnessesary if not on a terminal.
@@ -145,6 +150,13 @@ if (fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
     if (needsRedraw) {
 
     }
+    const tag = line.SYSLOG_IDENTIFIER === 'node' ? undefined : line.SYSLOG_IDENTIFIER;
+    const priority = {
+      "7": "DBG",
+      "3": "ERR",
+      "4": "WRN",
+      "6": "LOG",
+    }[line.PRIORITY];
     const time = parseInt(line.__REALTIME_TIMESTAMP.slice(0, -3));
     const sym = line._TRANSPORT === 'stdout' ? ' > ' : '‼> ';
     // Unwrap the line if it's an array of numbers
@@ -152,7 +164,7 @@ if (fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
       ? decoder.decode(new Uint8Array(line.MESSAGE))
       : line.MESSAGE;
     let stamp = formatDateTime(new Date(time));
-    const payload = { sym, stamp, length: message.replace(ansiEscRx, '').length, message };
+    const payload = { sym, tag, priority, stamp, length: message.replace(ansiEscRx, '').length, message };
     history.push(payload);
     while (history.length > 2000) {
       history.shift();
