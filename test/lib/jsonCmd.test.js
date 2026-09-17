@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { jsonCmd } from "./jsonCmd.js";
+import { jsonCmd } from "../../src/lib/jsonCmd.js";
 
 const collect = async (cmd, args) => {
   const results = [];

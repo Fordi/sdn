@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { sliceAnsi } from "./ansi.js";
+import { sliceAnsi } from "../../src/lib/ansi.js";
 
 describe("sliceAnsi", () => {
   it("plain text within bounds returns it unchanged", () => {

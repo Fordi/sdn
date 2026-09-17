@@ -1,11 +1,11 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { makeProjectFixture, makeFakeHome, makeFakeSystemctl, runNodeScript } from "./testSupport.js";
+import { makeProjectFixture, makeFakeHome, makeFakeSystemctl, runNodeScript } from "../testSupport.js";
 
-const here = dirname(fileURLToPath(import.meta.url));
+const here = resolve(dirname(fileURLToPath(import.meta.url)), "../../src/service");
 const uninstallScript = join(here, "uninstall.js");
 
 const systemdUserDir = (home) => join(home, ".config", "systemd", "user");

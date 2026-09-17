@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { parseJournalLine } from "./journalLine.js";
+import { parseJournalLine } from "../../src/lib/journalLine.js";
 
 const stubFormatDateTime = (date) => `STAMP(${date.getTime()})`;
 

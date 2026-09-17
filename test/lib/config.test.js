@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { getConfig } from "./config.js";
+import { getConfig } from "../../src/lib/config.js";
 
 const makeFixture = (pkg, { extraFiles = {} } = {}) => {
   const root = mkdtempSync(join(tmpdir(), "sdn-config-test-"));

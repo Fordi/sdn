@@ -1,8 +1,8 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
-import { systemctl } from "./systemctl.js";
-import { makeFakeSystemctl } from "../service/testSupport.js";
+import { systemctl } from "../../src/lib/systemctl.js";
+import { makeFakeSystemctl } from "../../src/lib/testSupport.js";
 
 describe("systemctl", () => {
   it("runs systemctl --user <cmd> <project.name> for a given cmd", (t) => {

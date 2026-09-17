@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { buildSystemdUnit, renderSystemdUnit } from "./systemdUnit.js";
+import { buildSystemdUnit, renderSystemdUnit } from "../../src/lib/systemdUnit.js";
 
 const makeProject = (overrides = {}) => ({
   description: "desc",

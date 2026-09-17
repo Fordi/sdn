@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { pad, formatDateTime } from "./dateFormat.js";
+import { pad, formatDateTime } from "../../src/lib/dateFormat.js";
 
 describe("pad", () => {
   it("left-pads with zeros to the given width", () => {

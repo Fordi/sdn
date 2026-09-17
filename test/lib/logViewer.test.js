@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { createLogViewer } from "./logViewer.js";
+import { createLogViewer } from "../../src/lib/logViewer.js";
 
 const makeStdout = ({ columns = 120, rows = 24 } = {}) => {
   const written = [];

@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { journalctl } from "./journalctl.js";
+import { journalctl } from "../../src/lib/journalctl.js";
 
 describe("journalctl", () => {
   it("returns an async generator without spawning a process until iterated", (t) => {

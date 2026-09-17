@@ -2,12 +2,12 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
 import { EventEmitter } from "node:events";
-import { join, dirname } from "node:path";
+import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { makeFakeJournalctl, makeProjectFixture, spawnNodeScript, killProcessGroup } from "./testSupport.js";
-import { runLogs } from "./logs.js";
+import { makeFakeJournalctl, makeProjectFixture, spawnNodeScript, killProcessGroup } from "../testSupport.js";
+import { runLogs } from "../../src/service/logs.js";
 
-const here = dirname(fileURLToPath(import.meta.url));
+const here = resolve(dirname(fileURLToPath(import.meta.url)), "../../src/service");
 const logsScript = join(here, "logs.js");
 
 const waitFor = async (predicate, { timeoutMs = 3000, intervalMs = 50 } = {}) => {

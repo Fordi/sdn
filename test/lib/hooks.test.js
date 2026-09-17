@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createHook } from "./hooks.js";
+import { createHook } from "../../src/lib/hooks.js";
 
 const makeProject = ({ hooksBody, hooksPath = "hooks.js", packageExtra = {} } = {}) => {
   const root = mkdtempSync(join(tmpdir(), "sdn-hooks-test-"));

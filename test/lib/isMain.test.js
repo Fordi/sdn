@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { pathToFileURL } from "node:url";
-import { isMain } from "./isMain.js";
+import { isMain } from "../../src/lib/isMain.js";
 
 describe("isMain", () => {
   it("returns true when the given URL resolves to the currently running script", () => {

@@ -1,11 +1,11 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { makeProjectFixture, makeFakeSystemctl, runNodeScript } from "./testSupport.js";
+import { makeProjectFixture, makeFakeSystemctl, runNodeScript } from "../testSupport.js";
 
-const here = dirname(fileURLToPath(import.meta.url));
+const here = resolve(dirname(fileURLToPath(import.meta.url)), "../../src/service");
 
 const runAlias = (name, root, binDir) =>
   runNodeScript(join(here, `${name}.js`), { cwd: root, env: { PATH: `${binDir}:${process.env.PATH}` } });

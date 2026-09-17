@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { findLocalInstall } from "./delegate.js";
+import { findLocalInstall } from "../../src/lib/delegate.js";
 
 const makeProjectWithLocalInstall = (packageName = "@fordi-org/sdn") => {
   const root = mkdtempSync(join(tmpdir(), "sdn-delegate-test-"));

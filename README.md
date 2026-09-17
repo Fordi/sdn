@@ -1,8 +1,17 @@
-# SDN
+# @fordi-org/sdn
 
 ## Systemd Demonizer for Node
 
 This package will allow you to spin up a systemd service from an npm project with zero fuss.
+
+# Installation
+
+```sh
+# Install to your project
+npx i -D @fordi-org/sdn
+# Install globally so you can run `sdn` instead of `npx sdn`
+npx i @fordi-org/sdn
+```
 
 # Usage
 
@@ -25,16 +34,21 @@ You can add any items to the service file with a `.config.systemd` section.  The
 You don't really need to get into the systemd weeds here.  If you have a `.name` and `.main`, you should be good to go to the next steps:
 
 ```bash
-$ npx @fordi-org/sdn install
+npx sdn install
 ```
 
 This will create the service for you.  While you're in your working directory, there are some convenience scripts:
 
 ```bash
-$ npx @fordi-org/sdn control start # This is an alias for `systemctl --user start your-service`  
-$ npx @fordi-org/sdn control stop # Any other service-related verb works
-$ npx @fordi-org/sdn logs # Will run journalctl so you can see what your service is doing
-$ npx @fordi-org/sdn uninstall # Remove your service from systemd
+npx sdn start # Equivalent to systemctl --user start your-service
+npx sdn stop # stop your service
+npx sdn restart # stop your service
+npx sdn reload # refresh your service's systemd file
+npx sdn status # get your service's status
+npx sdn stop # stop your service
+npx sdn control {verb} # This is an alias for `systemctl --user {verb} your-service`
+npx sdn logs # Will run journalctl so you can see what your service is doing
+npx sdn uninstall # Remove your service from systemd
 ```
 
 You might want to consider adding `scripts` to your `package.json`:
@@ -43,15 +57,15 @@ You might want to consider adding `scripts` to your `package.json`:
 {
   ...
   "scripts": {
-    "install-service": "npx @fordi-org/sdn install",
-    "uninstall-service": "npx @fordi-org/sdn uninstall",
-    "control": "npx @fordi-org/sdn control",
-    "start": "npx @fordi-org/sdn control start",
-    "status": "npx @fordi-org/sdn control status",
-    "stop": "npx @fordi-org/sdn control stop",
-    "logs": "npx @fordi-org/sdn logs",
-    "restart": "npx @fordi-org/sdn control restart",
-    "reload": "npx @fordi-org/sdn control '' daemon-reload"
+    "install-service": "sdn install",
+    "uninstall-service": "sdn uninstall",
+    "control": "sdn control",
+    "start": "sdn start",
+    "status": "sdn status",
+    "stop": "sdn stop",
+    "logs": "sdn logs",
+    "restart": "sdn restart",
+    "reload": "sdn reload"
   },
   ...
 }

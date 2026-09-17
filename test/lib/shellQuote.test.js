@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { shellQuote } from "./shellQuote.js";
+import { shellQuote } from "../../src/lib/shellQuote.js";
 
 describe("shellQuote", () => {
   it("empty string quotes to ''", () => {

@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { runCli } from "./index.js";
+import { runCli } from "../src/index.js";
 
 describe("runCli", () => {
   it("warns and exits with -1 when no command is given", async () => {

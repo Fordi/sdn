@@ -8,11 +8,11 @@ import {
   rmSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, dirname } from "node:path";
+import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { spawnNodeScript, killProcessGroup } from "./testSupport.js";
+import { spawnNodeScript, killProcessGroup } from "../testSupport.js";
 
-const here = dirname(fileURLToPath(import.meta.url));
+const here = resolve(dirname(fileURLToPath(import.meta.url)), "../../src/service");
 const serviceIndex = join(here, "index.js");
 
 const makeServiceFixture = ({ appBody, name = "svcapp" } = {}) => {
