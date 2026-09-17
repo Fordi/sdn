@@ -1,6 +1,6 @@
 {
   "name": "@fordi-org/sdn",
-  "version": "0.0.6",
+  "version": "1.0.0",
   "description": "Make an npm project run as a systemd service",
   "type": "module",
   "main": "src/lib/index.js",
