@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
 import { systemctl } from "../../src/lib/systemctl.js";
-import { makeFakeSystemctl } from "../../src/lib/testSupport.js";
+import { makeFakeSystemctl } from "../testSupport.js";
 
 describe("systemctl", () => {
   it("runs systemctl --user <cmd> <project.name> for a given cmd", (t) => {

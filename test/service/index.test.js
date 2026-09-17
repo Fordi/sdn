@@ -15,7 +15,7 @@ import { spawnNodeScript, killProcessGroup } from "../testSupport.js";
 const here = resolve(dirname(fileURLToPath(import.meta.url)), "../../src/service");
 const serviceIndex = join(here, "index.js");
 
-const makeServiceFixture = ({ appBody, name = "svcapp" } = {}) => {
+const makeServiceFixture = ({ appBody, name = "svcapp", hooksBody } = {}) => {
   const root = mkdtempSync(join(tmpdir(), "sdn-service-test-"));
   writeFileSync(
     join(root, "package.json"),
@@ -35,7 +35,7 @@ const makeServiceFixture = ({ appBody, name = "svcapp" } = {}) => {
   writeFileSync(join(root, "app.js"), appBody, "utf8");
   writeFileSync(
     join(root, "hooks.js"),
-    [
+    hooksBody ?? [
       "import { appendFileSync } from 'node:fs';",
       "const log = process.env.SDN_TEST_HOOK_LOG;",
       "const record = (event) => (info) => appendFileSync(log, JSON.stringify({ event, info }) + '\\n');",
@@ -45,8 +45,7 @@ const makeServiceFixture = ({ appBody, name = "svcapp" } = {}) => {
       "export const restart = record('restart');",
       "export const exit = record('exit');",
       "export const crash = record('crash');",
-      "const configUpdate = record('config:update');",
-      "export { configUpdate as 'config:update' };",
+      "export const configUpdate = record('configUpdate');",
     ].join("\n"),
     "utf8",
   );
@@ -84,7 +83,7 @@ const cleanup = (...dirs) => {
 };
 
 describe("service/index (the nodemon-backed service supervisor)", () => {
-  it("fires init, config:update, and running hooks when the watched app starts", async (t) => {
+  it("fires init, configUpdate, and running hooks when the watched app starts", async (t) => {
     const root = makeServiceFixture({
       appBody: "console.log('up'); setInterval(() => {}, 1000);",
     });
@@ -102,7 +101,7 @@ describe("service/index (the nodemon-backed service supervisor)", () => {
     );
     assert.ok(gotRunning, "expected a 'running' hook event");
     const events = readHookEvents(log);
-    assert.deepEqual(events, ["init", "config:update", "running"]);
+    assert.deepEqual(events, ["init", "configUpdate", "running"]);
   });
 
   it("fires the quit hook and exits when sent SIGINT", async (t) => {
@@ -124,7 +123,7 @@ describe("service/index (the nodemon-backed service supervisor)", () => {
     await exited;
     assert.deepEqual(readHookEvents(log), [
       "init",
-      "config:update",
+      "configUpdate",
       "running",
       "quit",
     ]);
@@ -147,5 +146,35 @@ describe("service/index (the nodemon-backed service supervisor)", () => {
       readHookEvents(log).includes("crash"),
     );
     assert.ok(gotCrash, "expected a 'crash' hook event");
+  });
+
+  it("survives a rejecting async hook on a fire-and-forget event instead of crashing", async (t) => {
+    const root = makeServiceFixture({
+      appBody: "console.log('up'); setInterval(() => {}, 1000);",
+      hooksBody: [
+        "export const running = async () => { throw new Error('running hook broke'); };",
+      ].join("\n"),
+    });
+    const child = spawnNodeScript(serviceIndex, { args: [root] });
+    t.after(() => {
+      killProcessGroup(child);
+      cleanup(root);
+    });
+
+    let stderr = "";
+    child.stderr.on("data", (chunk) => { stderr += chunk; });
+
+    const loggedFailure = await waitFor(() => stderr.includes("running hook broke"));
+    assert.ok(loggedFailure, `expected the hook failure to be logged; got stderr: ${JSON.stringify(stderr)}`);
+
+    // Give an unhandled rejection a moment to crash the process, if it were
+    // going to -- then confirm it's still alive rather than merely that it
+    // eventually exits (which would also be true of a crash).
+    await new Promise((r) => setTimeout(r, 100));
+    assert.equal(child.exitCode, null, "expected the service to still be running, not crashed");
+
+    const exited = new Promise((resolve) => child.once("exit", resolve));
+    killProcessGroup(child, "SIGINT");
+    await exited;
   });
 });

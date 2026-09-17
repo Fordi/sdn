@@ -50,3 +50,36 @@ npx sdn stop # stop your service
 npx sdn logs # Will run journalctl so you can see what your service is doing
 npx sdn uninstall # Remove your service from systemd
 ```
+
+# Hooks
+
+You can run your own code in response to service lifecycle events by pointing `.config.hooks` at a JS module, relative to your project root:
+
+```json
+{
+  "name": "my-service",
+  "main": "src/index.js",
+  "config": {
+    "hooks": "./hooks.js"
+  }
+}
+```
+
+That module should export a function for each event you care about. Any event without a matching export is silently skipped, so you only need to implement the ones you use:
+
+```js
+// hooks.js
+export const init = (project) => { /* service is about to start; project is the resolved config */ };
+export const running = () => { /* the watched process started successfully */ };
+export const quit = () => { /* sdn itself is shutting down (e.g. received SIGINT) */ };
+export const restart = () => { /* nodemon is restarting the watched process */ };
+export const exit = () => { /* the watched process exited cleanly */ };
+export const crash = () => { /* the watched process exited with an error */ };
+export const configUpdate = () => { /* nodemon's config was reloaded */ };
+```
+
+Only `init` is called with any data (the resolved project config); every other event calls its handler with `null`.
+
+Handlers may be `async`. `init` and `quit` are awaited before continuing, so those two can delay startup/shutdown until they finish (e.g. to flush logs or notify an external service), and a rejection there will stop startup/shutdown and surface the error. The other events (`running`, `restart`, `exit`, `crash`, `configUpdate`) fire without blocking `sdn`; if one of those rejects, the error is logged rather than crashing the service.
+
+Your hooks module is re-imported on every `restart` and `configUpdate`, so edits to it take effect without needing to restart the `sdn` process itself.

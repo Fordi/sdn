@@ -98,6 +98,38 @@ describe("createHook", () => {
     }
   });
 
+  it("awaits an async handler before resolving", async () => {
+    const root = makeProject({
+      hooksBody: [
+        "export const running = async (info) => {",
+        "  await new Promise((r) => setTimeout(r, 20));",
+        "  globalThis.__hookCalls.push(info);",
+        "};",
+      ].join("\n"),
+    });
+    globalThis.__hookCalls = [];
+    try {
+      const hook = createHook(root);
+      await hook("running", "done");
+      assert.deepEqual(globalThis.__hookCalls, ["done"]);
+    } finally {
+      delete globalThis.__hookCalls;
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("propagates a rejection from an async handler to the caller", async () => {
+    const root = makeProject({
+      hooksBody: `export const crash = async () => { throw new Error("handler blew up"); };`,
+    });
+    try {
+      const hook = createHook(root);
+      await assert.rejects(() => hook("crash", null), /handler blew up/);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it("bump() changes the version query param so edited hook files are re-imported", async () => {
     const root = makeProject({
       hooksBody: `export const running = (info) => { globalThis.__hookCalls.push(info); };`,

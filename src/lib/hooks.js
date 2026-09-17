@@ -16,7 +16,7 @@ export function createHook(where, getConfig = defaultGetConfig) {
       hooksFile.searchParams.set('version', version);
       const hooksModule = await import(hooksFile);
       if (event in hooksModule) {
-        hooksModule[event](info);
+        await hooksModule[event](info);
       }
     }
   };
