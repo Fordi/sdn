@@ -5,7 +5,6 @@ import { fileURLToPath } from "node:url";
 import { getConfig } from "../lib/config.js";
 import { shellQuote } from "../lib/shellQuote.js";
 import { jsonCmd } from "../lib/jsonCmd.js";
-import { stdin } from "node:process";
 
 const { config: project } = getConfig(process.cwd());
 

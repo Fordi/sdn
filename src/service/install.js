@@ -20,8 +20,8 @@ const systemd = {
     ...project.systemd?.Service,
     WorkingDirectory: project.root,
     ExecStart: shellQuote(
-      resolve(config.root, "service/node"),
-      resolve(config.root, "service/index.js"),
+      resolve(config.root, "src/service/node"),
+      resolve(config.root, "src/service/index.js"),
       resolve(project.root)
     ),
   },
