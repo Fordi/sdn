@@ -14,7 +14,7 @@
     "sdn": "src/index.js"
   },
   "scripts": {
-    "test": "c8 --reporter=html --reporter=text node --test",
+    "test": "c8 node --test",
     "coverage": "open coverage/index.html || xdg-open coverage/index.html"
   }
 }
