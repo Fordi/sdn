@@ -15,3 +15,8 @@ jobs:
           node-version-file: '.nvmrc'
       - run: npm ci
       - run: npm test
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage/
