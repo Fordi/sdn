@@ -1,6 +1,9 @@
 {
   "name": "@fordi-org/sdn",
   "version": "1.0.0",
+  "repository": {
+    "url": "https://github.com/Fordi/sdn"
+  },
   "description": "Make an npm project run as a systemd service",
   "type": "module",
   "main": "src/lib/index.js",
