@@ -4,43 +4,12 @@ import { existsSync, rmSync, writeFileSync } from "node:fs";
 import { basename, resolve } from "node:path";
 
 import { config, getConfig } from "../lib/config.js";
-import { shellQuote } from "../lib/shellQuote.js";
+import { buildSystemdUnit, renderSystemdUnit } from "../lib/systemdUnit.js";
 
 const { config: project } = getConfig(process.cwd());
 const ownName = basename(import.meta.url, '.js');
-const systemd = {
-  ...project.systemd,
-  Unit: {
-    Description: project.description,
-    After: ["network.target"],
-    ...project.systemd?.Unit
-  },
-  Service: {
-    Type: "simple",
-    ...project.systemd?.Service,
-    WorkingDirectory: project.root,
-    ExecStart: shellQuote(
-      resolve(config.root, "src/service/node"),
-      resolve(config.root, "src/service/index.js"),
-      resolve(project.root)
-    ),
-  },
-  Install: {
-    WantedBy: ["multi-user.target"],
-    ...project.systemd?.Install,
-  },
-};
-
-const serviceContent = Object.entries(systemd).map(
-  ([heading, values]) => [
-    `[${heading}]`,
-    ...Object.entries(values).map(([name, value]) =>
-      Array.isArray(value)
-        ? value.map((v) => `${name}=${v}`).join('\n')
-        : `${name}=${value}`
-    )
-  ].join('\n')
-).join('\n\n');
+const systemd = buildSystemdUnit(project, config);
+const serviceContent = renderSystemdUnit(systemd);
 
 const serviceFile = resolve(project.root, `${project.name}.service`);
 const systemdFile = resolve(process.env.HOME, '.config', 'systemd', 'user', `${project.name}.service`);
