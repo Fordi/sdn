@@ -1,6 +1,5 @@
 {
   "all": true,
   "include": ["src/**/*.js"],
-  "exclude": ["src/lib/testSupport.js"],
   "reporter": ["html", "text"]
 }
