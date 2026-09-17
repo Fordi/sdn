@@ -8,9 +8,9 @@ import { jsonCmd } from "../lib/jsonCmd.js";
 
 const { config: project } = getConfig(process.cwd());
 
-const pad = (n, l = 2) => String(n).padStart(l, '0');
+export const pad = (n, l = 2) => String(n).padStart(l, '0');
 
-const formatDateTime = (date) => {
+export const formatDateTime = (date) => {
   const d = `${pad(date.getFullYear())}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
   const g = date.getHours();
   const h = g % 12 || 12;
@@ -78,7 +78,7 @@ if (process.stdin.isTTY) {
   });
 }
 
-function sliceAnsi(text, start, end) {
+export function sliceAnsi(text, start, end) {
   let i = 0, j = 0;
   text = [...text];
   for (; i < start; i++, j++) {
