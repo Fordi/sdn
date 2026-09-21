@@ -11,6 +11,26 @@ const where = process.argv[2] ?? process.cwd();
 const { config: project } = getConfig(where);
 const hook = createHook(where);
 
+// init/quit are awaited by their callers below, so a rejection there
+// correctly stops startup/shutdown. The rest fire-and-forget, so their hook
+// calls are wrapped here instead of crashing the supervisor via an
+// unhandled rejection if a hook throws or rejects.
+const fire = async (event, info) => {
+  try {
+    return await hook(event, info);
+  } catch (err) {
+    console.error(`Service ${project.name} hook '${event}' failed:`, err);
+  }
+};
+
+fire.bump = async (event, info) => {
+  try {
+    return await hook.bump(event, info);
+  } catch (err) {
+    console.error(`Service ${project.name} hook '${event}' failed:`, err);
+  }
+};
+
 await hook("init", project);
 
 const runMain = resolve(dirname(fileURLToPath(import.meta.url)), "../lib/runMain.js");
@@ -52,21 +72,21 @@ for (const watchPath of project.watchPaths) {
 
 nodemon.on("start", async () => {
   console.log(`Service ${project.name} is running.`);
-  await hook("running", null);
+  await fire("running", null);
 }).on("quit", async () => {
   console.log(`Service ${project.name} has quit.`);
   await hook("quit", null);
   process.exit();
 }).on("restart", async () => {
   console.log(`Service ${project.name} will restart.`);
-  await hook.bump("restart", null);
+  await fire.bump("restart", null);
 }).on("exit", async () => {
   console.log(`Service ${project.name} exited cleanly.`);
-  await hook("exit", null);
+  await fire("exit", null);
 }).on("crash", async () => {
   console.log(`Service ${project.name} crashed.`);
   const lastCrash = readLastCrash(where);
-  const restart = await hook("crash", lastCrash);
+  const restart = await fire("crash", lastCrash);
   if (restart === true) {
     console.log("App requested restart");
     nodemon.restart();
@@ -78,5 +98,5 @@ nodemon.on("start", async () => {
   }
 }).on("config:update", async () => {
   console.log(`Service ${project.name} nodemon config has changed.`);
-  await hook.bump("configUpdate", null);
+  await fire.bump("configUpdate", null);
 });
