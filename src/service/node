@@ -1,16 +1,21 @@
 #!/usr/bin/env bash
-if [[ -d "${HOME}/.nvm" ]]; then
-  export NVM_DIR="${HOME}/.nvm"
+NVM_DIR="${NVM_DIR:-$(realpath "${HOME}/.nvm")}"
+if [[ -d "$NVM_DIR" ]]; then
+  export NVM_DIR
+  CUR_VER="$(node --version)"
+  DEFAULT_VER="$(cat "${NVM_DIR}/alias/default")"
   source "${NVM_DIR}/nvm.sh"
+  WANTED="${DEFAULT_VER:-${CUR_VER}}"
   if [[ -f .nvmrc ]]; then
-    nvm install
-  else
-    nvm use default
+    WANTED="$(cat .nvmrc)"
+  fi
+  if [[ "${WANTED#v}" != "${CUR_VER#v}" ]]; then
+    nvm install "${WANTED}"
   fi
 fi
 NODE="$(command -v node)"
 if [[ -z "$NODE" ]]; then
   echo "No node found.  Please install one.  User-level nvm is fine." >&2
-  exit -1
-fi 
+  exit 1
+fi
 node $*
