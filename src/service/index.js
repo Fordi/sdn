@@ -45,8 +45,22 @@ nodemon({
 // sources are watched separately from nodemon's own watch list (which only
 // covers project.root). A change to any of them restarts the watched
 // process so it picks up the new config on its next boot.
+// Editors create lock/swap/backup files next to whatever they open (nano's
+// .name.swp, vim's .name.swp / 4913 probe, emacs' #name# and .#name, the
+// usual name~ backups), so merely opening a config file would otherwise
+// restart the service. Only the real file being written should count.
+const isEditorTemp = (name) =>
+  name.startsWith(".#")
+  || name.startsWith("#")
+  || name.endsWith("~")
+  || /\.sw[a-px]$/.test(name)
+  || name === "4913";
+
 const restartOnChange = (label) => (eventType, filename) => {
   if (filename && basename(filename) === "lastCrash.json") {
+    return;
+  }
+  if (filename && isEditorTemp(basename(filename))) {
     return;
   }
   console.log(`Service ${project.name} ${label} changed; restarting.`);
