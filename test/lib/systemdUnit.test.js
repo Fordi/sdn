@@ -16,7 +16,7 @@ describe("buildSystemdUnit", () => {
     const unit = buildSystemdUnit(makeProject(), config);
     assert.deepEqual(unit.Unit, { Description: "desc", After: ["network.target"] });
     assert.equal(unit.Service.Type, "simple");
-    assert.equal(unit.Install.WantedBy[0], "multi-user.target");
+    assert.equal(unit.Install.WantedBy[0], "default.target");
   });
 
   it("sets WorkingDirectory from the project root", () => {
@@ -100,6 +100,6 @@ describe("renderSystemdUnit", () => {
     assert.match(rendered, /\[Service\]/);
     assert.match(rendered, /Type=simple/);
     assert.match(rendered, /\[Install\]/);
-    assert.match(rendered, /WantedBy=multi-user\.target/);
+    assert.match(rendered, /WantedBy=default\.target/);
   });
 });
