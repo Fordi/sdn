@@ -37,7 +37,21 @@ You don't really need to get into the systemd weeds here.  If you have a `.name`
 npx sdn install
 ```
 
-This will create the service for you.  While you're in your working directory, there are some convenience scripts:
+This will create the service for you.  It's a user service (`systemctl --user`), and sdn links it into systemd but deliberately doesn't enable it, the same as `systemctl link` would.  To have it start automatically when you log in:
+
+```bash
+npx sdn control enable
+```
+
+To have it start at boot, without waiting for you to log in, also turn on lingering for your user (this applies to all of your user services, not just this one):
+
+```bash
+loginctl enable-linger $USER
+```
+
+If systemctl is new to you, DigitalOcean's [How To Use Systemctl to Manage Systemd Services and Units](https://www.digitalocean.com/community/tutorials/how-to-use-systemctl-to-manage-systemd-services-and-units) is a friendly introduction to the basic commands.  It covers system services; the same commands work for user services with `--user` added, and the Arch Wiki's [systemd/User](https://wiki.archlinux.org/title/Systemd/User) page covers how user services differ.
+
+While you're in your working directory, there are some convenience scripts:
 
 ```bash
 npx sdn control {verb} # This is an alias for `systemctl --user {verb} your-service`
