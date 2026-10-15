@@ -20,7 +20,7 @@ export function buildSystemdUnit(project, config) {
       ),
     },
     Install: {
-      WantedBy: ["multi-user.target"],
+      WantedBy: ["default.target"],
       ...project.systemd?.Install,
     },
   };
